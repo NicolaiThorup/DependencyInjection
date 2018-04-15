@@ -54,5 +54,23 @@ namespace Microsoft.Extensions.DependencyInjection.Tests
             thread.Join();
             await tsc.Task;
         }
+
+        [Theory]
+        [InlineData(ServiceProviderMode.Dynamic)]
+        [InlineData(ServiceProviderMode.Runtime)]
+        [InlineData(ServiceProviderMode.ILEmit)]
+        [InlineData(ServiceProviderMode.Expressions)]
+        private void CompilesWideServiceTree(ServiceProviderMode mode)
+        {
+            var serviceCollection = new ServiceCollection();
+            WideTreeTestData.Register(serviceCollection);
+
+            var serviceProvider = serviceCollection.BuildServiceProvider(new ServiceProviderOptions { Mode = mode });
+            for (int i = 0; i < 10; i++)
+            {
+                var service = serviceProvider.GetService<AllCommandMangers>();
+                Assert.NotNull(service);
+            }
+        }
     }
 }
